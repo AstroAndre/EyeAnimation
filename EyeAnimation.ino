@@ -3,49 +3,50 @@
 #include "Adafruit_GFX.h"
 #include "anim.h"
 
+//Both Matrices are connect to the same pins
+//We only need to initialize only one matrix here
 Adafruit_8x8matrix matrix = Adafruit_8x8matrix();
-Adafruit_8x8matrix matrixLeft = Adafruit_8x8matrix();
 
+//Length of a animation
 int shortDelay = 2500;
 int longDelay = 5000;
-int blinkDelay = 100;
+int delayVariationTypes = 2;
 int modeLength = 0;
-int animSelection = 0;
-int blinkChance;
-int animVariation = 0;
 int delayVariation = 0;
-const int buttonPin = 3;
-int buttonState; 
+
+//Chance of a blink
+int blinkDelay = 100;
+int blinkChance = 10;
+int blinkChanceResult;
+
+//Selection of a current animation
+int animSelection = 0;
+int animVariation = 0;
 
 void setup() 
 {
    matrix.begin(0x70);
-   matrix.setBrightness(1);
+   matrix.setBrightness(10);
    matrix.setRotation(3);
    matrix.blinkRate(0);
-   animVariation = random(4);
-   delayVariation = random(2);
-   pinMode(buttonPin, INPUT);   
-Serial.begin(9600);  
+   
+   //Start with one of the four animation modes
+   animVariation = random(5);
+   //Delay is short or long
+   delayVariation = random(delayVariationTypes);
 }
 
 void ledUpdate()
 {
-    matrix.writeDisplay();
-
-    buttonState = digitalRead(buttonPin);
-  Serial.println(buttonState);
-    if(buttonState == 0){
-         matrix.setBrightness(1);
-    } else {
-         matrix.setBrightness(10);
-    }
-
-    if(delayVariation == 0){
+   matrix.writeDisplay();
+   
+   //Delay selection
+   if(delayVariation == 0){
       delay(longDelay);
-    }else{
+   }else{
       delay(shortDelay);
-    }
+   }
+   
    matrix.clear();
    blinkAnim();
 }
@@ -57,11 +58,12 @@ void newAnimMode()
    animSelection = 0;
 }
 
+//There is a slight chance of eye blinking
 void blinkAnim()
 {
-   blinkChance = random(10);
+   blinkChanceResult = random(blinkChance);
 
-   if(blinkChance > 8){
+   if(blinkChanceResult > 8){
         matrix.drawBitmap(0, 0, eyesclosed_bmp, 8, 8, LED_ON);
         matrix.writeDisplay();
         matrix.clear();
@@ -71,13 +73,13 @@ void blinkAnim()
 
 void newDelayMode()
 {
-   delayVariation = random(2);
+   delayVariation = random(delayVariationTypes);
 }
 
 void loop() 
 {
-
-//standard mode
+//SELECTION OF DIFFERENT ANIMATION TYPES
+//Standard mode
 if (animVariation == 0){
   for (int i = 0; i <= modeLength; i++){
     animSelection = random(9);
@@ -112,52 +114,45 @@ if (animVariation == 0){
   }
 }
 
-//bored mode
-if (animVariation == 1 && buttonState == 1){
+//Bored mode
+if (animVariation == 1){
   for (int i = 0; i <= modeLength; i++){
     animSelection = random(4);
     if (animSelection == 0){
       matrix.drawBitmap(0, 0, eyesbored_bmp, 8, 8, LED_ON);
-
     }
     if (animSelection == 1){
       matrix.drawBitmap(0, 0, eyesboredright_bmp, 8, 8, LED_ON);
-
     }
     if (animSelection == 2){
       matrix.drawBitmap(0, 0, eyesboredleft_bmp, 8, 8, LED_ON);
-
     }
     if (animSelection == 3){
       matrix.drawBitmap(0, 0, eyesclosed_bmp, 8, 8, LED_ON);
-
     }
     ledUpdate();
   }
 }
 
-//happy mode
-if (animVariation == 2 && buttonState == 1){
+//Happy mode
+if (animVariation == 2){
   for (int i = 0; i <= modeLength; i++){
     animSelection = random(3);
     if (animSelection == 0){
       matrix.drawBitmap(0, 0, eyeshappy1_bmp, 8, 8, LED_ON);
-
     }
     if (animSelection == 1){
       matrix.drawBitmap(0, 0, eyeshappy2_bmp, 8, 8, LED_ON);
-
     }
     if (animSelection == 2){
       matrix.drawBitmap(0, 0, eyeshappy3_bmp, 8, 8, LED_ON);
-
     }
     ledUpdate();
   }
 }
 
-//angry mode
-if (animVariation == 3 && buttonState == 1){
+//Angry mode
+if (animVariation == 3){
   for (int i = 0; i <= modeLength; i++){
     animSelection = random(4);
     if (animSelection == 0){
@@ -180,26 +175,24 @@ if (animVariation == 3 && buttonState == 1){
   }
 }
 
-//stoned mode
-if (animVariation == 4 && buttonState == 1){
+//Stoned mode
+if (animVariation == 4){
   for (int i = 0; i <= modeLength; i++){
     animSelection = random(3);
     if (animSelection == 0){
       matrix.drawBitmap(0, 0, eyesghosty1_bmp, 8, 8, LED_ON);
-
     }
     if (animSelection == 1){
       matrix.drawBitmap(0, 0, eyesghosty2_bmp, 8, 8, LED_ON);
-
     }
     if (animSelection == 2){
       matrix.drawBitmap(0, 0, eyesghosty3_bmp, 8, 8, LED_ON);
-
     }
     ledUpdate();
   }
 }
 
-  newAnimMode();
-  newDelayMode();
+//Set a new animation mode and a new delay type
+newAnimMode();
+newDelayMode();
 }
